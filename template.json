@@ -19,7 +19,7 @@
     "workspaceLocation": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]"
-    }
+    },
     "containerAppEnvironmentName": {
       "type": "string",
       "defaultValue": "[format('container-app-environment-{0}', uniqueString(resourceGroup().id))]"
