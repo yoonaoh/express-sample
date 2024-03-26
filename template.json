@@ -45,9 +45,17 @@
       "defaultValue": "[format('containerRegistry{0}', uniqueString(resourceGroup().id))]"
     },
     "containerRegistrySku": { "type": "string", "defaultValue": "Basic" },
+    "containerRegistryLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
     "oidcUserIdentity": {
       "type": "string",
       "defaultValue": "[concat(parameters('containerAppName'), '-','oidcUserIdentity', '-msi')]"
+    },
+    "oidcUserLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
     },
     "OidcRbacNameToContainerAppEnvironment": {
       "type": "string",
@@ -160,7 +168,7 @@
       "apiVersion": "2022-02-01-preview",
       "name": "[parameters('containerRegistryName')]",
       "type": "Microsoft.ContainerRegistry/registries",
-      "location": "[parameters('location')]",
+      "location": "[parameters('containerRegistryLocation')]",
       "dependsOn": [],
       "sku": { "name": "[parameters('containerRegistrySku')]" },
       "properties": {
@@ -173,7 +181,7 @@
       "apiVersion": "2018-11-30",
       "name": "[parameters('oidcUserIdentity')]",
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-      "location": "[parameters('location')]",
+      "location": "[parameters('oidcUserLocation')]",
       "dependsOn": [],
       "properties": {},
       "resources": [
