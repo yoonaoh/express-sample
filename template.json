@@ -16,6 +16,10 @@
       "type": "object",
       "defaultValue": { "name": "PerGB2018" }
     },
+    "workspaceLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
     "containerAppEnvironmentName": {
       "type": "string",
       "defaultValue": "[format('container-app-environment-{0}', uniqueString(resourceGroup().id))]"
@@ -64,7 +68,7 @@
       "apiVersion": "2020-08-01",
       "name": "[parameters('workspaceName')]",
       "type": "Microsoft.OperationalInsights/workspaces",
-      "location": "[parameters('location')]",
+      "location": "[parameters('workspaceLocation')]",
       "dependsOn": [],
       "properties": {
         "sku": "[parameters('workspaceSku')]",
