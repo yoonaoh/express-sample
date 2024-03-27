@@ -16,10 +16,6 @@
       "type": "object",
       "defaultValue": { "name": "PerGB2018" }
     },
-    "workspaceLocation": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]"
-    },
     "containerAppEnvironmentName": {
       "type": "string",
       "defaultValue": "[format('container-app-environment-{0}', uniqueString(resourceGroup().id))]"
@@ -45,17 +41,9 @@
       "defaultValue": "[format('containerRegistry{0}', uniqueString(resourceGroup().id))]"
     },
     "containerRegistrySku": { "type": "string", "defaultValue": "Basic" },
-    "containerRegistryLocation": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]"
-    },
     "oidcUserIdentity": {
       "type": "string",
       "defaultValue": "[concat(parameters('containerAppName'), '-','oidcUserIdentity', '-msi')]"
-    },
-    "oidcUserLocation": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]"
     },
     "OidcRbacNameToContainerAppEnvironment": {
       "type": "string",
@@ -76,7 +64,7 @@
       "apiVersion": "2020-08-01",
       "name": "[parameters('workspaceName')]",
       "type": "Microsoft.OperationalInsights/workspaces",
-      "location": "[parameters('workspaceLocation')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [],
       "properties": {
         "sku": "[parameters('workspaceSku')]",
@@ -168,7 +156,7 @@
       "apiVersion": "2022-02-01-preview",
       "name": "[parameters('containerRegistryName')]",
       "type": "Microsoft.ContainerRegistry/registries",
-      "location": "[parameters('containerRegistryLocation')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [],
       "sku": { "name": "[parameters('containerRegistrySku')]" },
       "properties": {
@@ -181,7 +169,7 @@
       "apiVersion": "2018-11-30",
       "name": "[parameters('oidcUserIdentity')]",
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-      "location": "[parameters('oidcUserLocation')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [],
       "properties": {},
       "resources": [
