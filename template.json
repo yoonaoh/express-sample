@@ -56,7 +56,15 @@
     "OidcRbacNameToContainerRegistry": {
       "type": "string",
       "defaultValue": "[guid(resourceGroup().id, 'containerRegistry')]"
-    }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "[format('vnet{0}', uniqueString(resourceGroup().id, deployment().name))]"
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "[format('subnet{0}', uniqueString(resourceGroup().id, deployment().name))]"
+    },
   },
   "variables": {},
   "resources": [
@@ -73,14 +81,45 @@
       }
     },
     {
+      "apiVersion": "2022-01-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[parameters('location')]",
+      "dependsOn": [],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": ["10.0.0.0/16"],
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "10.0.0.0/23",
+              "delegations": [
+                {
+                  "name": "Microsoft.App.environments",
+                  "id": "[concat('/subscriptions/', parameters('subscriptionId'), '/resourceGroup/', parameters('resourceGroupName'), '/providers/Microsoft.Network/availableDelegations/Microsoft.App.environments')]",
+                  "type": "Microsoft.Network/availableDelegations",
+                  "properties": {
+                    "serviceName": "Microsoft.App/environments",
+                    "actions": ["Microsoft.Network/virtualNetworks/subnets/join/action"],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      }
+    },
+    {
       "apiVersion": "2023-05-02-preview",
       "name": "[parameters('containerAppEnvironmentName')]",
       "type": "Microsoft.App/managedEnvironments",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ],
-      "sku": { "name": "Consumption" },
       "properties": {
         "appLogsConfiguration": {
           "destination": "log-analytics",
@@ -88,7 +127,17 @@
             "customerId": "[reference(concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName')), '2020-08-01').customerId]",
             "sharedKey": "[listKeys(concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName')), '2020-08-01').primarySharedKey]"
           }
-        }
+        },
+        "vnetConfiguration": {
+          "infrastructureSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
+          "internal": false,
+        },
+        "workloadProfiles": [
+          {
+            "name": "Consumption",
+            "workloadProfileType": "Consumption",
+          },
+        ],
       }
     },
     {
@@ -118,7 +167,8 @@
             }
           ],
           "scale": { "minReplicas": 0 }
-        }
+        },
+        "workloadProfileName": "Consumption"
       },
       "resources": [
         {
